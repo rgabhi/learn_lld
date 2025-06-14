@@ -290,3 +290,67 @@ If we need a class that supports both audio and video playback, we can create a 
     class MultiMediaPlayer(AudioPlayer, VideoPlayer):
         # Implements methods from both audio and video player
 ```
+
+### D: Dependency Inversion Principle (DIP)
+
+> High-level modules should not depend on low-level modules; both should depend on abstractions.
+
+This means that a particular class should not depend directly on another class, but on an abstraction (interface) of this class.
+
+Applying this principle reduces dependency on specific implementations and makes our code more reusable.
+
+**Code Example:**
+
+Consider an example where we have a `EmailService` class that sends emails using a specific email provider (e.g., Gmail).
+
+```python
+    class GmailClient:
+        def send_email(self, recipient, subject, body):
+            # logic to send email using gmail api
+             
+    class EmailService:
+        def __init__(self):
+            self.gmail_client = GmailClient()
+            
+        def send_email(self, recipient, subject, body):
+            self.gmail_client.send_email(recipient, subject, body)
+
+```
+
+In this example, the `EmailService` class directly depends on the `GmailClient` class, a low-level module that implements the details of sending emails using the Gmail API.
+
+This violates the DIP because the high-level `EmailService` module is tightly coupled to the low-level `GmailClient` module.
+
+To adhere to the DIP, we can introduce an abstraction (interface) for email clients:
+
+```python
+    class EmailClient:
+        def send_email(self, recipient, subject, body):
+            raise NotImplementedError
+    
+    class GmailClient(EmailClient):
+        def send_email(self, recipient, subject, body):
+            # logic to send email using gmail api
+            
+    class OutlookClient(EmailClient):
+        def send_email(self, recipient, subject, body):
+            # logic to send email using outlook api
+    
+    class EmailService:
+        def __init__(self, email_client):
+            self.email_client = email_client
+            
+        def send_email(self, recipient, subject, body):
+            self.email_client.send_email(recipient, subject, body)
+    
+    
+    ## Usage
+    gmail_client = GmailClient()
+    email_service = EmailService(gmail_client)
+    email_service.send_email("abc@gmail.com", "sub", "bod") 
+            
+```
+
+Now, the `EmailService` class depends on the `EmailClient` abstraction, and the low-level email client implementations (`GmailClient` and `OutlookClient`) depend on the abstraction.
+
+This follows the DIP, resulting in a more flexible and extensible design.
